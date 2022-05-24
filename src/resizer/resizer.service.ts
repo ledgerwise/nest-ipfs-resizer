@@ -7,11 +7,11 @@ import {
     UnsupportedMediaTypeException 
 } from '@nestjs/common';
 import { 
-    MediaType, 
+    MediaType,
     ResizedMedia 
 } from './interfaces/resizer.interface';
 import sharp = require("sharp");
-import fetch from 'node-fetch';
+import fetch from 'node-fetch';``
 
 const ffmpegInstance = createFFmpeg();
 ffmpegInstance.load();
@@ -76,6 +76,8 @@ export class ResizerService {
         
         const arrayBuffer: ArrayBuffer 
             = await this.bufferFetcher(`${this.IPFS}/${hash}`);
+        
+        console.log(arrayBuffer);
         
         if (arrayBuffer) {
 

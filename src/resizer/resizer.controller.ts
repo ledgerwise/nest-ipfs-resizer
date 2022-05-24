@@ -1,14 +1,13 @@
 import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
 import { ResizedMedia } from './interfaces/resizer.interface';
 import { ResizerService } from './resizer.service';
-import { Response } from 'express';
 
 @Controller('resizer')
 export class ResizerController {
 
     constructor (private readonly resizerService: ResizerService) {}
 
-    @Get(':hash')
+    @Get(':hash*')
     async resize(@Param() params, @Res() res) {
 
         const hash: string | undefined = params.hash;
