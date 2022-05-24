@@ -12,7 +12,7 @@ describe('ResizerService', () => {
     service = module.get<ResizerService>(ResizerService);
   });
 
-  it('should be defined', async () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 });

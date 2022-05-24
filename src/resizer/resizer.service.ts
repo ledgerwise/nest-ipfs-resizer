@@ -13,7 +13,7 @@ import {
 import sharp = require("sharp");
 import fetch from 'node-fetch';
 
-const ffmpegInstance = createFFmpeg({ log: true });
+const ffmpegInstance = createFFmpeg();
 ffmpegInstance.load();
 
 @Injectable()
