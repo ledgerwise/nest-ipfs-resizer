@@ -14,7 +14,7 @@ describe('ResizerController', () => {
     controller = module.get<ResizerController>(ResizerController);
   });
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
     expect(controller).toBeDefined();
   });
 });
