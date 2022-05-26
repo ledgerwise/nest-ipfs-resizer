@@ -7,7 +7,7 @@ export class ResizerController {
 
     constructor (private readonly resizerService: ResizerService) {}
 
-    @Get(':hash*')
+    @Get(':hash(*)')
     async resize(@Param() params, @Res() res) {
 
         const hash: string | undefined = params.hash;

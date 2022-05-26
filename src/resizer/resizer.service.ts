@@ -11,7 +11,7 @@ import {
     ResizedMedia 
 } from './interfaces/resizer.interface';
 import sharp = require("sharp");
-import fetch from 'node-fetch';``
+import fetch from 'node-fetch';
 
 const ffmpegInstance = createFFmpeg();
 ffmpegInstance.load();
@@ -63,11 +63,13 @@ export class ResizerService {
     async bufferFetcher(url: string): Promise<ArrayBuffer> {
     
         const r = await fetch(url)
-            .then((resp: Response) => resp.arrayBuffer())
+            .then((resp: Response) => {
+                return resp.arrayBuffer()
+            })
             .catch((err: Error) => {
 
                 throw new InternalServerErrorException();
-            })
+            });
         
         return r;
     }
@@ -76,9 +78,7 @@ export class ResizerService {
         
         const arrayBuffer: ArrayBuffer 
             = await this.bufferFetcher(`${this.IPFS}/${hash}`);
-        
-        console.log(arrayBuffer);
-        
+                
         if (arrayBuffer) {
 
             return Buffer.from(arrayBuffer);
@@ -101,7 +101,7 @@ export class ResizerService {
         const fileType = await fileTypeFromBuffer(file).catch(err => {
             throw new UnprocessableEntityException();
         });
-    
+
         if (fileType) {
             
             const ext: string = fileType.ext;
@@ -149,23 +149,23 @@ export class ResizerService {
         
         if (ffmpegInstance.isLoaded()) {
     
-            const inputFile: string = hash;
-            const outputFile: string = `${hash}.${ext}`;
+            const inputFile: string = `to-resize.${ext}`;
+            const outputFile: string = `resized.${ext}`;
     
             try {
     
-                ffmpegInstance.FS('writeFile', hash, file);
+                ffmpegInstance.FS('writeFile', inputFile, file);
                 await ffmpegInstance.run(
                     '-i',
                     inputFile,
                     '-vf',
-                    'scale=360:trunc(ow/a/2)*2',
+                    'scale=240:trunc(ow/a/2)*2',
                     outputFile
                 );
                 
                 const outputData: ArrayBuffer 
                     = ffmpegInstance.FS('readFile', outputFile);
-                ffmpegInstance.FS('unlink', hash);
+                ffmpegInstance.FS('unlink', inputFile);
                 ffmpegInstance.FS('unlink', outputFile);
     
                 return Buffer.from(outputData);
