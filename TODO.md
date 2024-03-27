@@ -1,0 +1,7 @@
+- [ ] Add feature to modify audio files.
+- [ ] Add more features to image resizing.
+- [ ] Add more features to video resizing.
+- [ ] Resizing should error out it if cId points to a folder.
+- [ ] Add docker support.
+- [ ] Add configuration options via ENV.
+- [ ] Add feature to prune unused files. (Might require a DB to store last used date.)
