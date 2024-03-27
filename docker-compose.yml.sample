@@ -1,0 +1,10 @@
+services:
+  nest-ipfs-resizer:
+    image: nest-ipfs-resizer
+    restart: unless-stopped
+    environment:
+      IPFS_GATEWAY: https://ipfs.ledgerwise.io
+    volumes:
+      - /shared/ipfs-resizer:/app/resized
+    ports:
+      - "3000:3000"
