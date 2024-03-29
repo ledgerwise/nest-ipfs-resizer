@@ -1,4 +1,4 @@
-- [ ] Add feature to modify audio files.
+- [x] Add feature to modify audio files.
 - [ ] Add more features to image resizing.
 - [ ] Add more features to video resizing.
 - [x] Resizing should error out it if cId points to a folder.

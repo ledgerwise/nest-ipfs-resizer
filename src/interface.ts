@@ -27,6 +27,7 @@ export interface VideoOptions {
 
 export interface AudioOptions {
     format: string,
+    duration?: number
 }
 
 export type MediaOptions =
@@ -48,6 +49,8 @@ export interface ResizeImageOptions extends ImageOptions, ResizeBaseOptions {}
 
 export interface ResizeVideoOptions extends VideoOptions, ResizeBaseOptions {}
 
+export interface ResizeAudioOptions extends AudioOptions, ResizeBaseOptions {}
+
 export interface GetResizedFilePathBaseProps {
     cId: string,
     format: string
@@ -57,9 +60,12 @@ export interface GetResizedImageFilePathProps extends ImageOptions, GetResizedFi
 
 export interface GetResizedVideoFilePathProps extends VideoOptions, GetResizedFilePathBaseProps {}
 
+export interface GetResizedAudioFilePathProps extends AudioOptions, GetResizedFilePathBaseProps {}
+
 export type GetResizedFilePath = 
     | GetResizedImageFilePathProps
     | GetResizedVideoFilePathProps
+    | GetResizedAudioFilePathProps
 
 export interface GetResizedFileBaseProps {
     cId: string,

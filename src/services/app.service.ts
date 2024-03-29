@@ -8,6 +8,7 @@ import { ImageService } from './image.service';
 import { VideoService } from './video.service';
 import { HelperService } from './helpers.service';
 import * as fs from 'fs'
+import { AudioService } from './audio.service';
 
 ffmpeg.setFfmpegPath(ffmpegStatic as string)
 
@@ -16,6 +17,7 @@ export class AppService {
   constructor(
     private readonly imageService: ImageService,
     private readonly videoService: VideoService,
+    private readonly audioService: AudioService,
     private readonly helperService: HelperService
   ) { }
 
@@ -55,10 +57,6 @@ export class AppService {
         throw new Error('IPFS hash should not be empty!')
       }
 
-      if (isNaN(props.width) || isNaN(props.height)) {
-        throw new Error('Invalid Width and Height!')
-      }
-
       const { exists, path } = this.helperService.fileExists(props)
 
       if (exists) {
@@ -75,6 +73,10 @@ export class AppService {
 
       try {
         if (orgResp.mediaType === 'image') {
+          if (isNaN(props.width) || isNaN(props.height)) {
+            throw new Error('Invalid Width and Height!')
+          }
+    
           const f = props.format || this.helperService.DEFAULT_IMG_FORMAT
 
           const { cId, width, height, fit, background, withoutEnlargement } = props
@@ -106,7 +108,35 @@ export class AppService {
           }
         }
 
+        if (orgResp.mediaType === 'audio') {
+          const f = props.format || this.helperService.DEFAULT_AUDIO_FORMAT
+
+          const { cId, duration } = props
+
+          const path = this.helperService.getResizedFilePath({
+            cId,
+            format: f,
+            duration
+          })
+
+          await this.audioService.resizeAudio({
+            buffer: orgResp.data,
+            cId,
+            format: f,
+            duration
+          })
+
+          return {
+            resized: true,
+            path
+          }
+        }
+
         if (orgResp.mediaType === 'video') {
+          if (isNaN(props.width) || isNaN(props.height)) {
+            throw new Error('Invalid Width and Height!')
+          }    
+
           const f = props.format || this.helperService.DEFAULT_VIDEO_FORMAT
 
           const { cId, width, height, noAudio, aspectRatio,

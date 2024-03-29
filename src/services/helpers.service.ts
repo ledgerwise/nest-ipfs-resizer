@@ -8,6 +8,7 @@ export class HelperService {
 
     readonly DEFAULT_IMG_FORMAT = 'webp'
     readonly DEFAULT_VIDEO_FORMAT= 'webm'  
+    readonly DEFAULT_AUDIO_FORMAT = 'webm'
 
     getResizedFilePath({
         cId,
@@ -71,7 +72,9 @@ export class HelperService {
         for (const c of cases) {
             const f = c === 'image'
                 ? this.DEFAULT_IMG_FORMAT
-                : this.DEFAULT_VIDEO_FORMAT
+                : c === 'video'
+                    ? this.DEFAULT_VIDEO_FORMAT
+                    : this.DEFAULT_AUDIO_FORMAT
 
             const path = this.getResizedFilePath({
                 cId,

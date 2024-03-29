@@ -7,6 +7,7 @@ import { ImageService } from './services/image.service';
 import { VideoService } from './services/video.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PruneMediaService } from './services/prune-media.service';
+import { AudioService } from './services/audio.service';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PruneMediaService } from './services/prune-media.service';
     AppService,
     HelperService,
     ImageService,
+    AudioService,
     VideoService,
     PruneMediaService
   ],
