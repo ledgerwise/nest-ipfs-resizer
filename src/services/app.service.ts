@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { GetOriginalFileRes, MediaOptions, ResizeOptions, ResizeRes } from '../interface';
+import { GetOriginalFileRes, ResizeOptions, ResizeRes } from '../interface';
 import ffmpegStatic from 'ffmpeg-static'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { ImageService } from './image.service';
 import { VideoService } from './video.service';
 import { HelperService } from './helpers.service';
+import * as fs from 'fs'
 
 ffmpeg.setFfmpegPath(ffmpegStatic as string)
 
@@ -61,6 +62,9 @@ export class AppService {
       const { exists, path } = this.helperService.fileExists(props)
 
       if (exists) {
+        // modify file time
+        fs.utimesSync(path, new Date(), new Date())
+
         return {
           resized: true,
           path

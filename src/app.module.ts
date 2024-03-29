@@ -5,19 +5,23 @@ import { ConfigModule } from '@nestjs/config';
 import { HelperService } from './services/helpers.service';
 import { ImageService } from './services/image.service';
 import { VideoService } from './services/video.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PruneMediaService } from './services/prune-media.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
-    })
+    }),
+    ScheduleModule.forRoot()
   ],
   controllers: [AppController],
   providers: [
     AppService,
     HelperService,
     ImageService,
-    VideoService
+    VideoService,
+    PruneMediaService
   ],
 })
 export class AppModule {}

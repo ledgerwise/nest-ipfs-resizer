@@ -18,7 +18,7 @@ export class ImageService {
         const filePath = this.helperService.getResizedFilePath(rest)
 
         const { cId, format, background,
-            width, height, fit, withoutEnlargement } = rest
+            width, height, fit = 'contain', withoutEnlargement } = rest
 
         this.helperService.createFolders(cId)
         
