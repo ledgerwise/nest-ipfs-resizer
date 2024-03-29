@@ -24,7 +24,7 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.1",
     "@nestjs/core": "^10.0.0",
-    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-express": "^10.3.7",
     "@nestjs/schedule": "^4.0.1",
     "@types/find-remove": "^2.0.3",
     "@types/fluent-ffmpeg": "^2.1.24",
