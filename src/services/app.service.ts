@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { GetOriginalFileRes, ResizeOptions, ResizeRes } from '../interface';
@@ -22,7 +22,6 @@ export class AppService {
   ) { }
 
   private readonly configService = new ConfigService()
-  private readonly logger = new Logger()
 
   async getOriginalFile(cId: string): GetOriginalFileRes {
     const ipfsGateway = this.configService.get('IPFS_GATEWAY')
@@ -163,7 +162,10 @@ export class AppService {
     return path;
   } 
 
-  async resize(props: ResizeOptions): ResizeRes {
+  async resize({
+    onError,
+    ...props
+  }: ResizeOptions): ResizeRes {
     try {
       if (!props.cId) {
         throw new Error('IPFS hash should not be empty!')
@@ -212,7 +214,7 @@ export class AppService {
       }
     } catch (error) {
 
-      if (props.onError) {
+      if (onError) {
         return {
           resized: false
         }

@@ -31,3 +31,11 @@ export const ValidResizeOptions = {
     video: AllowedVideoOptions,
     audio: AllowedAudioOptions
 }
+
+export enum FitEnumSwagger {
+    contain = 'contain',
+    cover = 'conver',
+    fill = 'fill',
+    inside = 'inside',
+    outside = 'outside'
+}

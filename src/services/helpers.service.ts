@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common'
 import { join } from 'path'
-import { FileExistsRes, GetFileExistsProps, GetResizedFilePath, MediaType, ResizeOptions } from 'src/interface'
+import { FileExistsRes, GetFileExistsProps, GetResizedFilePath, MediaType } from 'src/interface'
 import  * as fs from 'fs'
 import { ValidResizeOptions } from 'src/store'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class HelperService {
 
-    readonly DEFAULT_IMG_FORMAT = 'webp'
-    readonly DEFAULT_VIDEO_FORMAT= 'webm'  
-    readonly DEFAULT_AUDIO_FORMAT = 'webm'
+    private readonly configService = new ConfigService()
+
+    readonly DEFAULT_IMG_FORMAT = this.configService.get('DEFAULT_IMG_FORMAT') || 'webp'
+    readonly DEFAULT_VIDEO_FORMAT= this.configService.get('DEFAULT_VIDEO_FORMAT') || 'webm'  
+    readonly DEFAULT_AUDIO_FORMAT = this.configService.get('DEFAULT_AUDIO_FORMAT') || 'webm'
 
     getResizedFilePath({
         cId,

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import * as sharp from 'sharp'
 import { ResizeImageOptions } from 'src/interface'
 import { HelperService } from './helpers.service'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class ImageService {
@@ -9,14 +10,20 @@ export class ImageService {
         private readonly helperService: HelperService
     ) {}
 
+    private readonly configService = new ConfigService()
+    private readonly DEFAULT_ANIMATED = this.configService.get('DEFAULT_IMG_ANIM')
+        ? Boolean(this.configService.get('DEFAULT_IMG_ANIM'))
+        : false
+    private readonly DEFAULT_FIT = this.configService.get('DEFAULT_IMG_FIT') || 'contain'
+
     async resizeImage({ 
         buffer, 
         ...rest
     }: ResizeImageOptions) {
         const filePath = this.helperService.getResizedFilePath(rest)
 
-        const { cId, format, background, animated = false,
-            width, height, fit = 'contain', withoutEnlargement } = rest
+        const { cId, format, background, animated = this.DEFAULT_ANIMATED,
+            width, height, fit = this.DEFAULT_FIT, withoutEnlargement } = rest
 
         this.helperService.createFolders(cId)
         

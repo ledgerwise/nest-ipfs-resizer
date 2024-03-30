@@ -6,7 +6,7 @@
 - [x] Resizing should error out it if cId points to a folder.
 - [x] Add docker support.
 - [x] Add feature to prune unused files.
-- [ ] Add configuration options via ENV. (defaults can be changed to config options.)
+- [ ] Add configuration options via ENV. (defaults can be changed to config options, add resizing limits, stop svg resizing)
 - [ ] Add documentation.
 
 ### Future Additions
