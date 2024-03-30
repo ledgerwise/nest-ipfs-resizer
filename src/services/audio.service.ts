@@ -3,7 +3,7 @@ import * as ffmpegStatic from 'ffmpeg-static'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { Readable } from 'stream'
 import { HelperService } from './helpers.service'
-import { ResizeAudioOptions, ResizeVideoOptions } from 'src/interface'
+import { ResizeAudioOptions } from 'src/interface'
 
 @Injectable()
 export class AudioService {
@@ -33,9 +33,6 @@ export class AudioService {
             }
 
             command
-                // .videoCodec('libx264')
-                // .addOption('-x264opts', 'keyint=24:min-keyint=24:no-scenecut')
-                // .format('dash')
                 .toFormat(format)
                 .output(filePath)
                 .on('end', () => {

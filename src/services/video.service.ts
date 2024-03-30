@@ -28,7 +28,10 @@ export class VideoService {
         return new Promise((res, rej) => {
             let command = ffmpeg()
                 .input(Readable.from(Buffer.from(buffer)))
-                .size(`${width}x${height}`)
+
+            if (width || height) {
+                command = command.size(`${width || '?'}x${height || '?'}`)
+            }
 
             if (noAudio) {
                 command = command.noAudio()
@@ -47,9 +50,6 @@ export class VideoService {
             }
 
             command
-                // .videoCodec('libx264')
-                // .addOption('-x264opts', 'keyint=24:min-keyint=24:no-scenecut')
-                // .format('dash')
                 .toFormat(format)
                 .output(filePath)
                 .on('end', () => {

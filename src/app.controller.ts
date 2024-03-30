@@ -14,32 +14,34 @@ export class AppController {
     @Query('width') width: string,
     @Query('height') height: string,
     @Query('fit') fit?: keyof FitEnum,
-    @Query('without_enlargement') withoutEnlargement?: boolean,
+    @Query('without_enlargement') withoutEnlargement?: string,
     @Query('format') format?: string,
-    @Query('no_audio') noAudio?: boolean,
+    @Query('animated') animated?: string,
+    @Query('no_audio') noAudio?: string,
     @Query('aspect_ratio') aspectRatio?: string,
     @Query('background') background?: string,
-    @Query('duration') duration?: number
+    @Query('duration') duration?: string,
+    @Query('on_error') onError?: string
   ) {
     
     const res = await this.appService.resize({
       cId,
-      width: Number(width),
-      height: Number(height),
+      width: width ? Number(width) : undefined,
+      height: height ? Number(height) : undefined,
       fit,
-      withoutEnlargement,
+      withoutEnlargement: withoutEnlargement ? Boolean(withoutEnlargement) : undefined,
       format,
-      noAudio,
+      noAudio: noAudio ? Boolean(noAudio) : undefined,
       aspectRatio,
       background,
-      duration
+      duration: duration ? Number(duration) : undefined,
+      animated: animated ? Boolean(animated) : undefined,
+      onError
     })
 
     if (res.resized === false) {
-      resp.set({
-        'Content-Length': res.data.byteLength
-      })
-      resp.send(res.data)
+      console.log(onError)
+      if (onError) resp.redirect(onError)
       return;
     }
 

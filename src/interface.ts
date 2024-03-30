@@ -6,17 +6,18 @@ export type MediaType =
     | 'audio'
 
 export interface ImageOptions {
-    width: number,
-    height: number,
+    width?: number,
+    height?: number,
     format: string,
     background?: string
     fit?: keyof FitEnum,
-    withoutEnlargement?: boolean
+    withoutEnlargement?: boolean,
+    animated?: boolean
 }
 
 export interface VideoOptions {
-    width: number,
-    height: number,
+    width?: number,
+    height?: number,
     format: string,
     background?: string
     noAudio?: boolean,
@@ -37,7 +38,8 @@ export type MediaOptions =
 
 export type ResizeOptions = Omit<MediaOptions, 'format'> & {
     cId: string,
-    format?: string
+    format?: string,
+    onError?: string
 }
 
 export interface ResizeBaseOptions {
@@ -82,13 +84,11 @@ export type GetFileExistsProps =
 
 export type GetOriginalFileRes = Promise<{
     contentType: string,
-    mediaType: MediaType,
     data: ArrayBuffer
 }>    
 
 export type ResizeRes = Promise<{
-    resized: false,
-    data: ArrayBuffer
+    resized: false
 } | {
     resized: true,
     path: string

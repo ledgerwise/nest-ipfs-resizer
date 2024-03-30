@@ -9,26 +9,24 @@ export class ImageService {
         private readonly helperService: HelperService
     ) {}
 
-    // extend, composite
-
     async resizeImage({ 
         buffer, 
         ...rest
     }: ResizeImageOptions) {
         const filePath = this.helperService.getResizedFilePath(rest)
 
-        const { cId, format, background,
+        const { cId, format, background, animated = false,
             width, height, fit = 'contain', withoutEnlargement } = rest
 
         this.helperService.createFolders(cId)
         
         await sharp(buffer, {
-                animated: true
+                animated,
             })
             .resize(width, height, {
                 fit,
                 withoutEnlargement,
-                background
+                background,
             })
             .toFormat(format as keyof sharp.FormatEnum)
             .keepMetadata()

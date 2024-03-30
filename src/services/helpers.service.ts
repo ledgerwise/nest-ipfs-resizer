@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { join } from 'path'
-import { FileExistsRes, GetFileExistsProps, GetResizedFilePath, MediaType } from 'src/interface'
+import { FileExistsRes, GetFileExistsProps, GetResizedFilePath, MediaType, ResizeOptions } from 'src/interface'
 import  * as fs from 'fs'
+import { ValidResizeOptions } from 'src/store'
 
 @Injectable()
 export class HelperService {
@@ -48,7 +49,7 @@ export class HelperService {
         }
     }
 
-    fileExists({
+    resizedFileExists({
         cId,
         format,
         ...rest
@@ -107,5 +108,20 @@ export class HelperService {
         } else {
             return null;
         }
+    }
+
+    validateResizeOptions(mediaType: MediaType, options: Record<string, any>) {
+        const validOptions = ValidResizeOptions[mediaType]
+
+        for (const opt in options) {
+            if (options[opt]) {
+
+                if (!validOptions.includes(opt as any)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;;
     }
 }

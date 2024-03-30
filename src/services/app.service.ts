@@ -38,18 +38,130 @@ export class AppService {
     const data = resp.data
 
     const contentType = resp.headers['content-type']
-    const mediaType = this.helperService.getMediaType(contentType)
-
-    if (mediaType === null) {
-      throw new Error('Content must be a media type.')
-    }
 
     return {
       contentType,
-      mediaType,
       data
     };
   }
+
+  getResizeOptions(props: ResizeOptions) {
+    const {
+      cId,
+      onError,
+      ...resizeProps
+    } = props
+
+    return resizeProps;
+  }
+
+  async manageImage(buffer: ArrayBuffer, props: ResizeOptions) {
+    const resizeProps = this.getResizeOptions(props)
+
+    const hasValidOpts = this.helperService.validateResizeOptions('image', resizeProps)
+
+    if (!hasValidOpts) {
+      throw new Error('Invalid resizing options for this media type!')
+    }
+
+    const f = props.format || this.helperService.DEFAULT_IMG_FORMAT
+
+    const { cId, width, height, fit, background, animated, withoutEnlargement } = props
+
+    const path = this.helperService.getResizedFilePath({
+      cId,
+      format: f,
+      width,
+      height,
+      fit,
+      background,
+      animated,
+      withoutEnlargement
+    })
+
+    await this.imageService.resizeImage({
+      cId,
+      format: f,
+      buffer,
+      width,
+      height,
+      fit,
+      background,
+      animated,
+      withoutEnlargement
+    })
+
+    return path;
+  }
+
+  async manageVideo(buffer: ArrayBuffer, props: ResizeOptions) {
+    const resizeProps = this.getResizeOptions(props)
+
+    const hasValidOpts = this.helperService.validateResizeOptions('video', resizeProps)
+
+    if (!hasValidOpts) {
+      throw new Error('Invalid resizing options for this media type!')
+    }
+
+    const f = props.format || this.helperService.DEFAULT_VIDEO_FORMAT
+
+    const { cId, width, height, noAudio, aspectRatio,
+      background, duration } = props
+
+    const path = this.helperService.getResizedFilePath({
+      cId,
+      format: f,
+      width,
+      height,
+      noAudio,
+      aspectRatio,
+      background,
+      duration
+    })
+
+    await this.videoService.resizeVideo({
+      buffer,
+      cId,
+      format: f,
+      width,
+      height,
+      noAudio,
+      aspectRatio,
+      background,
+      duration
+    })
+
+    return path;
+  }
+
+  async manageAudio(buffer: ArrayBuffer, props: ResizeOptions) {
+    const resizeProps = this.getResizeOptions(props)
+
+    const hasValidOpts = this.helperService.validateResizeOptions('audio', resizeProps)
+
+    if (!hasValidOpts) {
+      throw new Error('Invalid resizing options for this media type!')
+    }
+
+    const f = props.format || this.helperService.DEFAULT_AUDIO_FORMAT
+
+    const { cId, duration } = props
+
+    const path = this.helperService.getResizedFilePath({
+      cId,
+      format: f,
+      duration
+    })
+
+    await this.audioService.resizeAudio({
+      buffer,
+      cId,
+      format: f,
+      duration
+    })
+
+    return path;
+  } 
 
   async resize(props: ResizeOptions): ResizeRes {
     try {
@@ -57,11 +169,12 @@ export class AppService {
         throw new Error('IPFS hash should not be empty!')
       }
 
-      const { exists, path } = this.helperService.fileExists(props)
+      const { exists, path } = this.helperService.resizedFileExists(props)
 
       if (exists) {
-        // modify file time
-        fs.utimesSync(path, new Date(), new Date())
+        const mTime = new Date()
+
+        fs.utimesSync(path, mTime, mTime)
 
         return {
           resized: true,
@@ -70,120 +183,41 @@ export class AppService {
       }
 
       const orgResp = await this.getOriginalFile(props.cId)
+      const orgBuffer = orgResp.data
 
-      try {
-        if (orgResp.mediaType === 'image') {
-          if (isNaN(props.width) || isNaN(props.height)) {
-            throw new Error('Invalid Width and Height!')
-          }
-    
-          const f = props.format || this.helperService.DEFAULT_IMG_FORMAT
+      const mediaType = this.helperService.getMediaType(orgResp.contentType)
 
-          const { cId, width, height, fit, background, withoutEnlargement } = props
+      if (mediaType === null) {
+        throw new Error('Content must be a media type.')
+      }
 
-          const path = this.helperService.getResizedFilePath({
-            cId,
-            format: f,
-            width,
-            height,
-            fit,
-            background,
-            withoutEnlargement
-          })
+      let resizedPath = ''
 
-          await this.imageService.resizeImage({
-            cId,
-            format: f,
-            buffer: orgResp.data,
-            width: width,
-            height: height,
-            fit,
-            background,
-            withoutEnlargement
-          })
+      switch(mediaType) {
+        case 'audio':
+          resizedPath = await this.manageAudio(orgBuffer, props)
+          break;
 
-          return {
-            resized: true,
-            path
-          }
-        }
+        case 'video':
+          resizedPath = await this.manageVideo(orgBuffer, props)
+          break;
 
-        if (orgResp.mediaType === 'audio') {
-          const f = props.format || this.helperService.DEFAULT_AUDIO_FORMAT
+        default:
+          resizedPath = await this.manageImage(orgBuffer, props)
+      }
 
-          const { cId, duration } = props
-
-          const path = this.helperService.getResizedFilePath({
-            cId,
-            format: f,
-            duration
-          })
-
-          await this.audioService.resizeAudio({
-            buffer: orgResp.data,
-            cId,
-            format: f,
-            duration
-          })
-
-          return {
-            resized: true,
-            path
-          }
-        }
-
-        if (orgResp.mediaType === 'video') {
-          if (isNaN(props.width) || isNaN(props.height)) {
-            throw new Error('Invalid Width and Height!')
-          }    
-
-          const f = props.format || this.helperService.DEFAULT_VIDEO_FORMAT
-
-          const { cId, width, height, noAudio, aspectRatio,
-            background, duration } = props
-
-          const path = this.helperService.getResizedFilePath({
-            cId,
-            format: f,
-            width,
-            height,
-            noAudio,
-            aspectRatio,
-            background,
-            duration
-          })
-
-          await this.videoService.resizeVideo({
-            buffer: orgResp.data,
-            cId,
-            format: f,
-            width,
-            height,
-            noAudio,
-            aspectRatio,
-            background,
-            duration
-          })
-
-          return {
-            resized: true,
-            path
-          }
-        }
-
-        return {
-          resized: false,
-          data: orgResp.data
-        }
-      } catch (error) {
-        this.logger.error(String(error))
-
-        return {
-          resized: false,
-          data: orgResp.data
-        }
+      return {
+        resized: true,
+        path: resizedPath
       }
     } catch (error) {
+
+      if (props.onError) {
+        return {
+          resized: false
+        }
+      }
+
       throw new HttpException(String(error), HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
