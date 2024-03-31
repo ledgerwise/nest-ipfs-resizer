@@ -112,19 +112,4 @@ export class HelperService {
             return null;
         }
     }
-
-    validateResizeOptions(mediaType: MediaType, options: Record<string, any>) {
-        const validOptions = ValidResizeOptions[mediaType]
-
-        for (const opt in options) {
-            if (options[opt]) {
-
-                if (!validOptions.includes(opt as any)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;;
-    }
 }

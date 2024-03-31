@@ -3,11 +3,21 @@ import { AppService } from './services/app.service';
 import { Response } from 'express';
 import { ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger'
 import { FitEnum } from 'sharp';
-import { FitEnumSwagger } from './store';
+import { AspectOptions, BackgroundOptions, DurationOptions, FitEnumSwagger, SizeOptions } from './store';
+import { ValidateService } from './services/validate.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly validateService: ValidateService
+  ) {}
+
+  /**
+   * When options are provided via environment variables, 
+   * any value outside the permitted range is not allowed. 
+   * However, 'undefined' is acceptable for all options.
+   */
 
   @ApiResponse({
     status: 200,
@@ -29,7 +39,7 @@ export class AppController {
     name: 'cId',
     type: String,
     required: true,
-    description: 'The cId of an IPFS file uniquely describes the block.'
+    description: 'The cId of an IPFS file uniquely describing the block.'
   })
   @ApiQuery({
     name: 'format',
@@ -38,16 +48,23 @@ export class AppController {
     description: 'Force output to a given format. By default the resizer will use webp for image and webm for video and audio.'
   })
   @ApiQuery({
+    name: 'size',
+    type: String,
+    enum: SizeOptions,
+    required: SizeOptions ? true : false,
+    description: 'The resolution of the resized file. Ignored if provider does not provide allowed size options. (Only works for video and image.)'
+  })
+  @ApiQuery({
     name: 'width',
     type: String,
     required: false,
-    description: 'The desired width of the resized file. (Only works for video and image.)'
+    description: 'The desired width of the resized file. Ignored if provider provides size options. (Only works for video and image.)'
   })
   @ApiQuery({
     name: 'height',
     type: String,
     required: false,
-    description: 'The desired height of the resized file. (Only works for video and image.)'
+    description: 'The desired height of the resized file. Ignored if provider provides size options. (Only works for video and image.)'
   })
   @ApiQuery({
     name: 'fit',
@@ -70,12 +87,14 @@ export class AppController {
   })
   @ApiQuery({
     name: 'aspect_ratio',
+    enum: AspectOptions,
     type: String,
     required: false,
     description: 'Enforces a specific output aspect ratio. It is ignored if both width and height are provided or none is provided. eg: 4:3 (Only works for video.)'
   })
   @ApiQuery({
     name: 'duration',
+    enum: DurationOptions,
     type: String,
     required: false,
     description: 'Forces to stop transcoding after a specific output duration. Accepts value in seconds. eg: 30 (Only works for video and audio.)'
@@ -88,6 +107,7 @@ export class AppController {
   })
   @ApiQuery({
     name: 'background',
+    enum: BackgroundOptions,
     type: String,
     required: false,
     description: 'Background color of the media. Eg: Teal (Only works for video and image.)'
@@ -96,14 +116,14 @@ export class AppController {
     name: 'on_error',
     type: String,
     required: false,
-    example: 'https://ipfs.io/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg',
-    description: 'URL to redirect to in case resizing fails. This is helpful for dapps to redirect to an unresized source in case of an error.'
+    description: 'URL to redirect to in case resizing fails. This is helpful for dapps to redirect to an unresized source in case of an error.\n\nExample: https://ipfs.io/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg'
   })
   @Get('/ipfs/:cId(*)')
   async resize(
     @Res() resp: Response,
     @Param('cId') cId: string,
     @Query('format') format?: string,
+    @Query('size') size?: string,
     @Query('width') width?: string,
     @Query('height') height?: string,
     @Query('fit') fit?: keyof FitEnum,
@@ -115,19 +135,23 @@ export class AppController {
     @Query('background') background?: string,
     @Query('on_error') onError?: string
   ) {
+    const { w, h } = this.validateService.validateQuerySize(size, width, height)
+    const aspect = this.validateService.validateQueryAspect(aspectRatio)
+    const d = this.validateService.validateQueryDuration(duration)
+    const b = this.validateService.validateQueryBackground(background)
     
     const res = await this.appService.resize({
       cId,
-      width: width ? Number(width) : undefined,
-      height: height ? Number(height) : undefined,
+      width: w,
+      height: h,
       fit,
-      withoutEnlargement: withoutEnlargement ? Boolean(withoutEnlargement) : undefined,
+      withoutEnlargement: withoutEnlargement === 'true' ? true : undefined,
       format,
-      noAudio: noAudio ? Boolean(noAudio) : undefined,
-      aspectRatio,
-      background,
-      duration: duration ? Number(duration) : undefined,
-      animated: animated ? Boolean(animated) : undefined,
+      noAudio: noAudio === 'true' ? true : undefined,
+      aspectRatio: aspect,
+      background: b,
+      duration: d,
+      animated: animated === 'true' ? true : undefined,
       onError
     })
 

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { GetOriginalFileRes, ResizeOptions, ResizeRes } from '../interface';
@@ -9,6 +9,7 @@ import { VideoService } from './video.service';
 import { HelperService } from './helpers.service';
 import * as fs from 'fs'
 import { AudioService } from './audio.service';
+import { ValidateService } from './validate.service';
 
 ffmpeg.setFfmpegPath(ffmpegStatic as string)
 
@@ -18,10 +19,17 @@ export class AppService {
     private readonly imageService: ImageService,
     private readonly videoService: VideoService,
     private readonly audioService: AudioService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
+    private readonly validateService: ValidateService
   ) { }
 
+  private readonly logger = new Logger(AppService.name)
   private readonly configService = new ConfigService()
+
+  private readonly MAX_CONTENT_LENGTH = this.configService.get('MAX_CONTENT_LENGTH')
+    ? Number(this.configService.get('MAX_CONTENT_LENGTH'))
+    : undefined
+  private readonly LOG_ERRORS = this.configService.get('LOG_ERRORS')
 
   async getOriginalFile(cId: string): GetOriginalFileRes {
     const ipfsGateway = this.configService.get('IPFS_GATEWAY')
@@ -31,7 +39,8 @@ export class AppService {
     }
 
     const resp = await axios.get(`${ipfsGateway}/ipfs/${cId}`, {
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      maxContentLength: this.MAX_CONTENT_LENGTH
     })
 
     const data = resp.data
@@ -57,7 +66,7 @@ export class AppService {
   async manageImage(buffer: ArrayBuffer, props: ResizeOptions) {
     const resizeProps = this.getResizeOptions(props)
 
-    const hasValidOpts = this.helperService.validateResizeOptions('image', resizeProps)
+    const hasValidOpts = this.validateService.validateResizeOptions('image', resizeProps)
 
     if (!hasValidOpts) {
       throw new Error('Invalid resizing options for this media type!')
@@ -96,7 +105,7 @@ export class AppService {
   async manageVideo(buffer: ArrayBuffer, props: ResizeOptions) {
     const resizeProps = this.getResizeOptions(props)
 
-    const hasValidOpts = this.helperService.validateResizeOptions('video', resizeProps)
+    const hasValidOpts = this.validateService.validateResizeOptions('video', resizeProps)
 
     if (!hasValidOpts) {
       throw new Error('Invalid resizing options for this media type!')
@@ -136,7 +145,7 @@ export class AppService {
   async manageAudio(buffer: ArrayBuffer, props: ResizeOptions) {
     const resizeProps = this.getResizeOptions(props)
 
-    const hasValidOpts = this.helperService.validateResizeOptions('audio', resizeProps)
+    const hasValidOpts = this.validateService.validateResizeOptions('audio', resizeProps)
 
     if (!hasValidOpts) {
       throw new Error('Invalid resizing options for this media type!')
@@ -213,6 +222,9 @@ export class AppService {
         path: resizedPath
       }
     } catch (error) {
+      if (this.LOG_ERRORS === 'true') {
+        this.logger.log(String(error))
+      }
 
       if (onError) {
         return {

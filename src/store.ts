@@ -1,4 +1,12 @@
 import { AudioOptions, ImageOptions, VideoOptions } from "./interface";
+import { config } from 'dotenv'
+
+config();
+
+const EnvSizeOptions = process.env.SIZE_OPTIONS
+const EnvAspectOptions = process.env.ASPECT_OPTIONS
+const EnvBackgroundOptions = process.env.BACKGROUND_OPTIONS
+const EnvDurationOptions = process.env.DURATION_OPTIONS
 
 export const AllowedImageOptions: Array<keyof ImageOptions> = [
     'background',
@@ -39,3 +47,19 @@ export enum FitEnumSwagger {
     inside = 'inside',
     outside = 'outside'
 }
+
+export const SizeOptions: string[] | undefined = EnvSizeOptions
+    ? EnvSizeOptions.split(',')
+    : undefined
+
+export const AspectOptions: string[] | undefined = EnvAspectOptions
+    ? EnvAspectOptions.split(',')
+    : undefined
+
+export const BackgroundOptions: string[] | undefined = EnvBackgroundOptions
+    ? EnvBackgroundOptions.split(',')
+    : undefined
+
+export const DurationOptions: string[] | undefined = EnvDurationOptions
+    ? EnvDurationOptions.split(',')
+    : undefined
