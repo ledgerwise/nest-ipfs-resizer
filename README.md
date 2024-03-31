@@ -1,73 +1,95 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# IPFS Resizer Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Welcome to the IPFS Resizer Service, a powerful tool designed to resize multimedia files stored on the InterPlanetary File System (IPFS). Our service provides an easy-to-use interface for adjusting the size of your images, videos, and audio files, ensuring they meet your specific needs without compromising on quality.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Image Resizing**: Change the dimensions and other properties of your images to optimize for different platforms.
+- **Video Rescaling**: Adjust video resolution, aspect ratio, etc for seamless playback across all devices.
+- **Audio Compression**: Modify audio duration and format to reduce file size while preserving sound quality.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## How to Use
 
-## Installation
+1. **Query**: Send the IPFS CID to the service and specify your desired dimensions and other properties.
+2. **Resize**: The service fetch the file and resize it according to the provided options.
+3. **Result**: Get the resized file back and enjoy your optimized content.
+
+## Getting Started
+
+To start using the IPFS Resizer Service, clone this repository and follow the next steps.
 
 ```bash
-$ npm install
+git clone https://github.com/your-username/ipfs-resizer-service.git
+cd ipfs-resizer-service
 ```
 
-## Running the app
+Build and start the service.
+
+```
+npm install
+npm run build
+npm run start
+```
+
+Or use docker
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker build -t nest-ipfs-resizer .
+docker-compose up
 ```
 
-## Test
+## Example
+
+Execute this command to check if the service is working. Use the link in a browser to view the resized output.
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl http://localhost:3000/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg?size=200x200
 ```
 
-## Support
+## Resizing Options
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+These options can be provided as query params to `/ipfs/*` endpoint.
 
-## Stay in touch
+- **format**: Force output to a given format. By default the resizer will use webp for image and webm for video and audio. Eg: mp4, wav, avi, etc
+- **size**: The resolution of the resized file. Ignored if provider does not provide allowed size options. (Only works for video and image.) Eg: 200x200, 720x576
+- **width**: The desired width of the resized file. Ignored if provider provides size options. (Only works for video and image.)
+- **height**: The desired height of the resized file. Ignored if provider provides size options. (Only works for video and image.)
+- **fit**: How the image should be resized to fit both provided dimensions. By default contain will be used as the fit. (Only works for image.) Eg: contain, cover, etc
+- **animated**: If set to false, the output image will be non-animated. Default value is false. (Only works for image.)
+- **without_enlargement**: Do not enlarge if the width or height are already less than the specified dimensions. (Only works for image.)
+- **aspect_ratio**: Enforces a specific output aspect ratio. It is ignored if both width and height are provided or none is provided. eg: 4:3 (Only works for video.)
+- **duration**: Forces to stop transcoding after a specific output duration. Accepts value in seconds. eg: 30 (Only works for video and audio.)
+- **no_audio**: Disables audio in the output. (Only works for video.)
+- **background**: Background color of the media. Eg: white (Only works for video and image.)
+- **on_error**: URL to redirect to in case resizing fails. This is helpful for dapps to redirect to an unresized source in case of an error.\n\nExample: https://ipfs.io/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+See the swagger docs `/api` to play with the service.
+
+## Configuration Options
+
+When using the service a lot of options can be configured as per the requirements in the `.env` file.
+
+- **IPFS_GATEWAY**: The IPFS gateway used to fetch the original resource (required).
+- **PRUNE_CRON_EXPRESSION**: This option is used to specify when should the pruning service run to delete old files. By default, runs the service weekly.
+- **PRUNE_AGE (In seconds)**: If a file is not being fetched for this interval then it's removed. By default, removes any file older than a month.
+- **DEFAULT_IMG_FORMAT**: The default format used to resize image. Default: `webp`
+- **DEFAULT_VIDEO_FORMAT**: The default format used to resize video. Default: `webm`
+- **DEFAULT_AUDIO_FORMAT**: The default format used to resize audio. Default: `webm`
+- **DEFAULT_IMG_ANIM**: Defines a default boolean specifying if the output image will be animated or not. If not provided `false` is used.
+- **DEFAULT_IMG_FIT**: Default fit used when resizing the image. If not provided `contain` is used.
+- **SIZE_OPTIONS**: Optional value to limit what resolutions can be accepted for resizing in `width`x`height` format. eg: `200x200,370x370`.
+- **ASPECT_OPTIONS**: Optional value to limit what aspect ratio can be accepted for resizing videos. Ignored if `SIZE_OPTIONS` is used. eg: `4:3,16:10`.
+- **BACKGROUND_OPTIONS**: Optional value to limit what background colors can be accepted for image and videos. eg: `black,white`.
+- **DURATION_OPTIONS**: Optional value to limit what duration can be accepted for trimming audios and videos. eg: `30,60`.
+- **MAX_CONTENT_LENGTH**: Optional value describing max size of the file to fetch in bytes. If the original resource while resizing is greater than this, then the service stops the process.
+- **LOG_ERRORS**: Optional value describing if the errors should be logged. Useful for debugging.
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+## Support
+
+For support, email hello@ledgerwise.io or open an issue in the GitHub repository.
+
+Enjoy optimizing your multimedia files with IPFS Resizer Service!

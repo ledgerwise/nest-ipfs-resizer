@@ -11,9 +11,7 @@ export class ImageService {
     ) {}
 
     private readonly configService = new ConfigService()
-    private readonly DEFAULT_ANIMATED = this.configService.get('DEFAULT_IMG_ANIM')
-        ? Boolean(this.configService.get('DEFAULT_IMG_ANIM'))
-        : false
+    private readonly DEFAULT_ANIMATED = this.configService.get('DEFAULT_IMG_ANIM') === 'true' ? true : false
     private readonly DEFAULT_FIT = this.configService.get('DEFAULT_IMG_FIT') || 'contain'
 
     async resizeImage({ 
