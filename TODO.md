@@ -7,7 +7,7 @@
 - [x] Add docker support.
 - [x] Add feature to prune unused files.
 - [x] Add configuration options via ENV.
-- [ ] Add documentation.
+- [x] Add documentation.
 
 ### Future Additions
 
