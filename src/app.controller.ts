@@ -25,7 +25,7 @@ export class AppController {
     content: {
       'video/*': {},
       'image/*': {},
-      'audio/*': {}
+      // 'audio/*': {}
     }
   })
   @ApiResponse({
@@ -85,26 +85,26 @@ export class AppController {
     required: false,
     description: 'Do not enlarge if the width or height are already less than the specified dimensions. (Only works for image.)'
   })
-  @ApiQuery({
-    name: 'aspect_ratio',
-    enum: AspectOptions,
-    type: String,
-    required: false,
-    description: 'Enforces a specific output aspect ratio. It is ignored if both width and height are provided or none is provided. eg: 4:3 (Only works for video.)'
-  })
-  @ApiQuery({
-    name: 'duration',
-    enum: DurationOptions,
-    type: String,
-    required: false,
-    description: 'Forces to stop transcoding after a specific output duration. Accepts value in seconds. eg: 30 (Only works for video and audio.)'
-  })
-  @ApiQuery({
-    name: 'no_audio',
-    type: Boolean,
-    required: false,
-    description: 'Disables audio in the output. (Only works for video.)'
-  })
+  // @ApiQuery({
+  //   name: 'aspect_ratio',
+  //   enum: AspectOptions,
+  //   type: String,
+  //   required: false,
+  //   description: 'Enforces a specific output aspect ratio. It is ignored if both width and height are provided or none is provided. eg: 4:3 (Only works for video.)'
+  // })
+  // @ApiQuery({
+  //   name: 'duration',
+  //   enum: DurationOptions,
+  //   type: String,
+  //   required: false,
+  //   description: 'Forces to stop transcoding after a specific output duration. Accepts value in seconds. eg: 30 (Only works for video and audio.)'
+  // })
+  // @ApiQuery({
+  //   name: 'no_audio',
+  //   type: Boolean,
+  //   required: false,
+  //   description: 'Disables audio in the output. (Only works for video.)'
+  // })
   @ApiQuery({
     name: 'background',
     enum: BackgroundOptions,
@@ -112,12 +112,12 @@ export class AppController {
     required: false,
     description: 'Background color of the media. Eg: Teal (Only works for video and image.)'
   })
-  @ApiQuery({
-    name: 'on_error',
-    type: String,
-    required: false,
-    description: 'URL to redirect to in case resizing fails. This is helpful for dapps to redirect to an unresized source in case of an error.\n\nExample: https://ipfs.io/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg'
-  })
+  // @ApiQuery({
+  //   name: 'on_error',
+  //   type: String,
+  //   required: false,
+  //   description: 'URL to redirect to in case resizing fails. This is helpful for dapps to redirect to an unresized source in case of an error.\n\nExample: https://ipfs.io/ipfs/QmUkRt94GkTDUa2tTgTCDAm7xne2xYTpzSQizw5mJPf61y/base/4a.jpg'
+  // })
   @Get('/ipfs/:cId(*)')
   async resize(
     @Res() resp: Response,
@@ -129,15 +129,15 @@ export class AppController {
     @Query('fit') fit?: keyof FitEnum,
     @Query('animated') animated?: string,
     @Query('without_enlargement') withoutEnlargement?: string,
-    @Query('aspect_ratio') aspectRatio?: string,
-    @Query('duration') duration?: string,
-    @Query('no_audio') noAudio?: string,
+    // @Query('aspect_ratio') aspectRatio?: string,
+    // @Query('duration') duration?: string,
+    // @Query('no_audio') noAudio?: string,
     @Query('background') background?: string,
-    @Query('on_error') onError?: string
+    // @Query('on_error') onError?: string
   ) {
     const { w, h } = this.validateService.validateQuerySize(size, width, height)
-    const aspect = this.validateService.validateQueryAspect(aspectRatio)
-    const d = this.validateService.validateQueryDuration(duration)
+    // const aspect = this.validateService.validateQueryAspect(aspectRatio)
+    // const d = this.validateService.validateQueryDuration(duration)
     const b = this.validateService.validateQueryBackground(background)
     
     const res = await this.appService.resize({
@@ -147,16 +147,16 @@ export class AppController {
       fit,
       withoutEnlargement: withoutEnlargement === 'true' ? true : undefined,
       format,
-      noAudio: noAudio === 'true' ? true : undefined,
-      aspectRatio: aspect,
+      // noAudio: noAudio === 'true' ? true : undefined,
+      // aspectRatio: aspect,
       background: b,
-      duration: d,
+      // duration: d,
       animated: animated === 'true' ? true : undefined,
-      onError
+      // onError
     })
 
     if (res.resized === false) {
-      if (onError) resp.redirect(onError)
+      // if (onError) resp.redirect(onError)
       return;
     }
 
